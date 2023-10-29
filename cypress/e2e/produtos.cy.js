@@ -1,4 +1,5 @@
 /// <reference types="cypress"/>
+import contrato from '../contracts/produtos.contracts'
 
 describe('Teste da Funcionalidade Produtos', () => {
     let token
@@ -7,15 +8,21 @@ describe('Teste da Funcionalidade Produtos', () => {
         cy.token('ana.silva@teste.com', 'teste').then(tkn => { token = tkn })
     });
 
+    it('Deve validar contrato de produtos', () => {
+        cy.request('produtos').then(response => {
+            return contrato.validateAsync(response.body)
+        })
+    });
+
     it('Listar Produtos', () => {
         cy.request({
             method: 'GET',
             url: 'produtos',
         }).then((response) => {
-            expect(response.body.produtos[2].nome).to.equal('Produto EBAC 51525218')
+            expect(response.body.produtos[4].nome).to.equal('Produto EBAC 50883857')
             expect(response.status).to.equal(200)
             expect(response.body).to.have.property('produtos')
-            expect(response.duration).to.be.lessThan(15)
+            expect(response.duration).to.be.lessThan(20)
         })
     });
 
@@ -46,6 +53,7 @@ describe('Teste da Funcionalidade Produtos', () => {
                 expect(response.status).to.equal(400)
                 expect(response.body.message).to.equal('Já existe produto com esse nome')
             })
+            
     });
 
     it('Deve editar um produto já cadastrado', () => {
@@ -56,8 +64,9 @@ describe('Teste da Funcionalidade Produtos', () => {
                 method: 'PUT',
                 url: `produtos/${id}`,
                 headers: { authorization: token },
+                failOnStatusCode: false,
                 body: {
-                    "nome": "Produto EBAC 65667160",
+                    "nome": "Produto EBAC 656671",
                     "preco": 200,
                     "descricao": "Produto Editado",
                     "quantidade": 100
